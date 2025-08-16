@@ -114,32 +114,57 @@ async def get_social_handles(base_url: str):
 
 
 async def get_contact_details(base_url: str):
-    """Extract emails and phone numbers from Contact page"""
+    """Extract emails, phones, and other contact info"""
     try:
         html = await fetch_page(base_url)
         soup = BeautifulSoup(html, "lxml")
 
-        # Find a "contact" page link
+        # Find Contact page link
         contact_url = None
         for a in soup.find_all("a", href=True):
             if "contact" in a["href"].lower():
                 contact_url = a["href"]
                 if not contact_url.startswith("http"):
-                    contact_url = base_url + contact_url
+                    contact_url = base_url.rstrip("/") + "/" + contact_url.lstrip("/")
                 break
 
         if not contact_url:
-            return {"emails": [], "phones": []}
+            return {"emails": [], "phones": [], "address": None, "return_info": None, "other_info": None}
 
+        # Fetch Contact Us page
         contact_html = await fetch_page(contact_url)
         text = BeautifulSoup(contact_html, "lxml").get_text(" ")
 
+        # Extract emails & phones
         emails = list(set(re.findall(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", text)))
-        phones = list(set(re.findall(r"\+?\d[\d -]{8,}\d", text)))
+        phones = list(set(re.findall(r"\+?\d[\d \-]{8,}\d", text)))
 
-        return {"emails": emails, "phones": phones}
-    except:
-        return {"emails": [], "phones": []}
+        # Extract sections
+        return_info = None
+        address = None
+        other_info = None
+
+        # Look for common keywords
+        if "return" in text.lower() or "refund" in text.lower():
+            return_info = " ".join([s for s in text.splitlines() if "return" in s.lower() or "refund" in s.lower()])[:300]
+
+        if "address" in text.lower():
+            address = " ".join([s for s in text.splitlines() if "address" in s.lower()])[:200]
+
+        # Catch any extra instructions (store hours, shipping help, etc.)
+        lines = [s.strip() for s in text.splitlines() if len(s.strip()) > 20]
+        if lines:
+            other_info = " ".join(lines[:3])[:300]
+
+        return {
+            "emails": emails,
+            "phones": phones,
+            "address": address,
+            "return_info": return_info,
+            "other_info": other_info
+        }
+    except Exception:
+        return {"emails": [], "phones": [], "address": None, "return_info": None, "other_info": None}
 
 
 async def get_about_text(base_url: str):
@@ -150,10 +175,13 @@ async def get_about_text(base_url: str):
 
         about_url = None
         for a in soup.find_all("a", href=True):
-            if "about" in a["href"].lower():
+            text = a.get_text(strip=True).lower()
+            href = a["href"].lower()
+
+            if "about" in text or "about" in href:
                 about_url = a["href"]
                 if not about_url.startswith("http"):
-                    about_url = base_url + about_url
+                    about_url = base_url.rstrip("/") + "/" + about_url.lstrip("/")
                 break
 
         if not about_url:
@@ -161,8 +189,11 @@ async def get_about_text(base_url: str):
 
         about_html = await fetch_page(about_url)
         about_soup = BeautifulSoup(about_html, "lxml")
-        return about_soup.get_text(" ", strip=True)[:1000]  # limit
-    except:
+
+        # Get only main content, not whole boilerplate
+        main_section = about_soup.find("main") or about_soup.find("div", {"class": "rte"}) or about_soup
+        return main_section.get_text(" ", strip=True)[:1000]  # limit text length
+    except Exception:
         return None
 
 
