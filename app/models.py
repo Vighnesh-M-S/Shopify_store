@@ -12,6 +12,7 @@ class FAQ(BaseModel):
 class Contact(BaseModel):
     emails: List[str] = []
     phones: List[str] = []
+    address: str | None = None
 
 class Links(BaseModel):
     order_tracking: Optional[str] = None
