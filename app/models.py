@@ -25,6 +25,6 @@ class BrandContext(BaseModel):
     policies: Policy
     faqs: List[FAQ] = []
     social_handles: Dict[str, str] = {}
-    contact: Contact
+    contact: Contact = Contact()   # ✅ default empty
     about: Optional[str] = None
-    links: Links
+    links: Links = Links()         # ✅ default empty
