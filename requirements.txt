@@ -5,6 +5,7 @@ pymysql
 cryptography
 pydantic
 requests
+dotenv
 httpx
 beautifulsoup4
 lxml

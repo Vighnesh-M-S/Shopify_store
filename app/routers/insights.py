@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Body
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 import httpx
 from app.models import BrandContext, Policy, Contact, Links, FAQ, CompetitorRequest
 from app.services import scraper
@@ -7,6 +7,9 @@ from app.services.competitor_finder import find_competitors
 from app.db import SessionLocal
 from app import models_db
 from sqlalchemy.orm import joinedload
+from typing import List, Optional
+import logging
+
 
 router = APIRouter()
 

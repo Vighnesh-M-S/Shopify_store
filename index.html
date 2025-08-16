@@ -117,8 +117,25 @@
           </div>
 
           <div class="card">
+            <h3>Product Catalog</h3>
+            <ul class="list">
+                ${Array.isArray(data.product_catalog) && data.product_catalog.length > 0 
+                ? data.product_catalog.map(p => 
+                    `<li>${p.title} - <a href="https://memy.co.in/products/${p.handle}" target="_blank">View</a></li>`
+                    ).join("") 
+                : "N/A"}
+            </ul>
+          </div>
+
+          <div class="card">
             <h3>Hero Products</h3>
-            <ul class="list">${data.hero_products.map(p => `<li>${p.name} - <a href="${p.url}" target="_blank">View</a></li>`).join("")}</ul>
+            <ul class="list">
+                ${Array.isArray(data.hero_products) && data.hero_products.length > 0
+                ? data.hero_products.map(p =>
+                    `<li>${p.title} - <a href="https://memy.co.in/products/${p.handle}" target="_blank">View</a></li>`
+                    ).join("")
+                : "N/A"}
+            </ul>
           </div>
 
           <div class="card">
