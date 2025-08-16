@@ -77,6 +77,7 @@
     <div class="input-group">
       <input type="text" id="storeUrl" placeholder="Enter Shopify store URL (e.g. https://memy.co.in)">
       <button onclick="fetchInsights()">Fetch Insights</button>
+      <button onclick="fetchCompetitors()">Fetch With Competitors</button>
     </div>
     <div id="results"></div>
   </main>
@@ -152,7 +153,46 @@
       } catch (error) {
         resultsDiv.innerHTML = `<p style="color:red;">${error.message}</p>`;
       }
+
     }
+
+    async function fetchCompetitors() {
+  const url = document.getElementById('storeUrl').value;
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.innerHTML = "<p>Loading competitors...</p>";
+
+  if (!url) {
+    resultsDiv.innerHTML = "<p style='color:red;'>Please enter a store URL.</p>";
+    return;
+  }
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/get_competitors", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ website_url: url })
+    });
+
+    if (!response.ok) {
+      throw new Error("Error fetching competitors: " + response.statusText);
+    }
+
+    const data = await response.json();
+
+    let html = `<h2>Main Store</h2><p>${data.main}</p>`;
+    html += `<h2>Competitors</h2><ul>`;
+
+    data.competitors.forEach(c => {
+      html += `<li><a href="${c}" target="_blank">${c}</a></li>`;
+    });
+
+    html += `</ul>`;
+    resultsDiv.innerHTML = html;
+
+  } catch (error) {
+    resultsDiv.innerHTML = `<p style='color:red;'>${error.message}</p>`;
+  }
+}
   </script>
 </body>
 </html>

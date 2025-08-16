@@ -28,3 +28,7 @@ class BrandContext(BaseModel):
     contact: Contact = Contact()   # ✅ default empty
     about: Optional[str] = None
     links: Links = Links()         # ✅ default empty
+
+class CompetitorRequest(BaseModel):
+    website_url: str
+    competitor_urls: List[str] = [] 

@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, Body
 from pydantic import BaseModel
 import httpx
-from app.models import BrandContext, Policy, Contact, Links, FAQ
+from app.models import BrandContext, Policy, Contact, Links, FAQ, CompetitorRequest
 from app.services import scraper
+from app.services.competitor_finder import find_competitors
 
 router = APIRouter()
 
@@ -42,3 +43,8 @@ async def fetch_store_insights(req: StoreRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/get_competitors")
+async def get_competitors(req: CompetitorRequest):
+    main_url = req.website_url
+    competitors = req.competitor_urls or await find_competitors(main_url)
+    return {"main": main_url, "competitors": competitors}
