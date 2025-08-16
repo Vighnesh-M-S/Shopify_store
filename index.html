@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shopify Insights Fetcher</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #4CAF50;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 15px;
+      background: #4CAF50;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #fafafa;
+    }
+    .card h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    .list {
+      margin: 0;
+      padding-left: 20px;
+    }
+    pre {
+      background: #eee;
+      padding: 10px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Shopify Store Insights</h1>
+  </header>
+  <main>
+    <div class="input-group">
+      <input type="text" id="storeUrl" placeholder="Enter Shopify store URL (e.g. https://memy.co.in)">
+      <button onclick="fetchInsights()">Fetch Insights</button>
+    </div>
+    <div id="results"></div>
+  </main>
+
+  <script>
+    async function fetchInsights() {
+      const url = document.getElementById('storeUrl').value;
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = "<p>Loading...</p>";
+
+      if (!url) {
+        resultsDiv.innerHTML = "<p style='color:red;'>Please enter a store URL.</p>";
+        return;
+      }
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/fetch_store_insights", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ website_url: url }) // ✅ correct format
+});
+
+        if (!response.ok) {
+          throw new Error("Error fetching insights: " + response.statusText);
+        }
+
+        const data = await response.json();
+        resultsDiv.innerHTML = `
+          <div class="card">
+            <h3>Brand Name</h3>
+            <p>${data.brand_name || "N/A"}</p>
+          </div>
+
+          <div class="card">
+            <h3>About</h3>
+            <p>${data.about || "N/A"}</p>
+          </div>
+
+          <div class="card">
+            <h3>Hero Products</h3>
+            <ul class="list">${data.hero_products.map(p => `<li>${p.name} - <a href="${p.url}" target="_blank">View</a></li>`).join("")}</ul>
+          </div>
+
+          <div class="card">
+            <h3>Policies</h3>
+            <p>Privacy Policy: <a href="${data.policies.privacy_policy || '#'}" target="_blank">${data.policies.privacy_policy || "N/A"}</a></p>
+            <p>Return Policy: <a href="${data.policies.return_policy || '#'}" target="_blank">${data.policies.return_policy || "N/A"}</a></p>
+          </div>
+
+          <div class="card">
+            <h3>FAQs</h3>
+            <ul class="list">${data.faqs.map(f => `<li><strong>${f.question}</strong> - ${f.answer}</li>`).join("")}</ul>
+          </div>
+
+          <div class="card">
+            <h3>Contact</h3>
+            <p>Emails: ${data.contact.emails.join(", ") || "N/A"}</p>
+            <p>Phones: ${data.contact.phones.join(", ") || "N/A"}</p>
+          </div>
+
+          <div class="card">
+            <h3>Social Handles</h3>
+            ${Object.entries(data.social_handles).map(([k, v]) => `<p>${k}: <a href="${v}" target="_blank">${v}</a></p>`).join("")}
+          </div>
+
+          <div class="card">
+            <h3>Important Links</h3>
+            <p>Order Tracking: <a href="${data.links.order_tracking || '#'}" target="_blank">${data.links.order_tracking || "N/A"}</a></p>
+            <p>Contact Us: <a href="${data.links.contact_us || '#'}" target="_blank">${data.links.contact_us || "N/A"}</a></p>
+            <p>Blogs: <a href="${data.links.blogs || '#'}" target="_blank">${data.links.blogs || "N/A"}</a></p>
+          </div>
+        `;
+      } catch (error) {
+        resultsDiv.innerHTML = `<p style="color:red;">${error.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
