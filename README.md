@@ -1,7 +1,7 @@
 # Shopify_store
 
 ## Project Overview
-----------------
+
 
 **Shopify Store Insights** is a FastAPI-based project that extracts detailed information about Shopify stores including brand details, product catalog, policies, contact information, and competitors. This project also allows fetching insights for competitor stores.
 
@@ -12,7 +12,7 @@ The project is designed to:
 *   Fetch competitor stores via APIs (SerpAPI / SimilarWeb / other sources).    
 
 ## Features
---------
+
 
 *   Fetch store insights:  
     *   Brand name & about    
@@ -26,7 +26,7 @@ The project is designed to:
 *   Designed for easy integration with web frontends
     
 ## Tech Stack
-----------
+
 
 *   Backend: **FastAPI**, **Python**    
 *   Database: **MySQL** (Railway)    
@@ -36,8 +36,8 @@ The project is designed to:
 *   Asynchronous operations using **asyncio**
     
 
-##APIs
-----
+## APIs
+
 
 ### 1\. Fetch Store Insights
 
@@ -70,7 +70,7 @@ bash
 ```
 
 ## Database
---------
+
 
 *   **Database:** MySQL (Railway)    
 *   **Tables:**    
@@ -81,15 +81,15 @@ bash
         
 
 ## Deployment
-----------
 
-*   **Backend deployed on Render**Enter your deployed URL here:\[https://shopify-store-fv15.onrender.com/]
+
+*   **Backend deployed on Render :** https://shopify-store-fv15.onrender.com/
     
-*   **Database hosted on Railway**Database credentials are loaded via .env using DATABASE\_URL
+*   **Database hosted on Railway :** Database credentials are loaded via .env using DATABASE\_URL
     
 
-Demo
-----
+## Demo
+
 
 *   Demo video:
 
@@ -98,8 +98,8 @@ Uploading Vighnesh ms's explaination.mp4…
 
     
 
-Setup Instructions
-------------------
+## Setup Instructions
+
 
 1.  Clone repository    
 
@@ -138,13 +138,13 @@ bash
 uvicorn app.main:app --reload
 ```
 
-Screenshots
------------
+## Screenshots
+
 
 Include any screenshots of API responses or front-end here.
 
-Notes
------
+## Notes
+
 
 *   For competitor fetching, you can use **SerpAPI** or **SimilarWeb** API.
     
