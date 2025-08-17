@@ -91,9 +91,9 @@ bash
 ## Demo
 
 
-*   Demo video:
+*   Demo video: https://github.com/Vighnesh-M-S/Shopify_store/Vighnesh ms's explaination.mp4
 
-Uploading Vighnesh ms's explaination.mp4…
+
 
 
     
