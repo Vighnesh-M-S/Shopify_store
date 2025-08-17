@@ -91,7 +91,7 @@ bash
 ## Demo
 
 
-*   Demo video: https://github.com/Vighnesh-M-S/Shopify_store/Vighnesh ms's explaination.mp4
+*   Demo video: https://github.com/Vighnesh-M-S/Shopify_store/Vighnesh_ms's_explaination.mp4
 
 
 
