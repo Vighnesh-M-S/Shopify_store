@@ -9,3 +9,4 @@ dotenv
 httpx
 beautifulsoup4
 lxml
+google-search-results

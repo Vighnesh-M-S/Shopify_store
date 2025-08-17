@@ -16,10 +16,22 @@ router = APIRouter()
 class StoreRequest(BaseModel):
     website_url: str
 
+class CompetitorRequest(BaseModel):
+    website_url: HttpUrl
+    competitor_urls: Optional[List[HttpUrl]] = None
+
 @router.post("/get_competitors")
 async def get_competitors(req: CompetitorRequest):
-    main_url = req.website_url
-    competitors = req.competitor_urls or await find_competitors(main_url)
+    main_url = str(req.website_url)
+
+    if req.competitor_urls:
+        competitors = [str(url) for url in req.competitor_urls]
+    else:
+        try:
+            competitors = await find_competitors(main_url)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to fetch competitors: {e}")
+
     return {"main": main_url, "competitors": competitors}
 
 def get_brand_context_from_db(url: str) -> BrandContext | None:
