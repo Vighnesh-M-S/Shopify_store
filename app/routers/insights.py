@@ -92,7 +92,7 @@ async def save_to_db(insights: BrandContext, url: str):
             else:
                 db.add(models_db.PolicyDB(
                     privacy_policy=insights.policies.privacy_policy,
-                    return_policy=insights.policies.return_policy,
+                    return_policy=insights.policies.return_policy or "",
                     brand_id=brand.id
                 ))
 
