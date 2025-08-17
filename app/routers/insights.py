@@ -61,43 +61,60 @@ def get_brand_context_from_db(url: str) -> BrandContext | None:
 async def save_to_db(insights: BrandContext, url: str):
     db = SessionLocal()
     try:
-        brand = models_db.Brand(
-            name=insights.brand_name,
-            url=url,
-            about=insights.about,
-        )
-        db.add(brand)
-        db.flush()  # so brand.id is available
+        # Check if brand already exists (avoid duplicate inserts)
+        existing_brand = db.query(models_db.Brand).filter(models_db.Brand.url == url).first()
+        if existing_brand:
+            brand = existing_brand
+        else:
+            brand = models_db.Brand(
+                name=insights.brand_name,
+                url=url,
+                about=insights.about,
+            )
+            db.add(brand)
+            db.flush()  # brand.id is available
 
         # Products
         for p in insights.product_catalog:
             db.add(models_db.Product(
                 title=p.get("title"),
-                price=p.get("price"),
-                url=p.get("handle") if "handle" in p else None,
+                price=p.get("price") or 0.0,  # Avoid None if column is NOT NULL
+                url=p.get("handle") or p.get("url") or "",  # Ensure not NULL
                 brand_id=brand.id
             ))
 
-        # ✅ Policies (use attributes, not .get)
+        # Policies (if one already exists, update)
         if insights.policies:
-            db.add(models_db.PolicyDB(
-                privacy_policy=insights.policies.privacy_policy,
-                return_policy=insights.policies.return_policy,
-                brand_id=brand.id
-            ))
+            policy = db.query(models_db.PolicyDB).filter(models_db.PolicyDB.brand_id == brand.id).first()
+            if policy:
+                policy.privacy_policy = insights.policies.privacy_policy
+                policy.return_policy = insights.policies.return_policy
+            else:
+                db.add(models_db.PolicyDB(
+                    privacy_policy=insights.policies.privacy_policy,
+                    return_policy=insights.policies.return_policy,
+                    brand_id=brand.id
+                ))
 
-        # ✅ Contact
+        # Contact
         if insights.contact:
-            db.add(models_db.ContactDB(
-                emails=insights.contact.emails if hasattr(insights.contact, "emails") else [],
-                phones=insights.contact.phones if hasattr(insights.contact, "phones") else [],
-                address=getattr(insights.contact, "address", None),
-                brand_id=brand.id
-            ))
+            contact = db.query(models_db.ContactDB).filter(models_db.ContactDB.brand_id == brand.id).first()
+            if contact:
+                contact.emails = insights.contact.emails
+                contact.phones = insights.contact.phones
+                contact.address = getattr(insights.contact, "address", None)
+            else:
+                db.add(models_db.ContactDB(
+                    emails=insights.contact.emails if hasattr(insights.contact, "emails") else [],
+                    phones=insights.contact.phones if hasattr(insights.contact, "phones") else [],
+                    address=getattr(insights.contact, "address", None),
+                    brand_id=brand.id
+                ))
 
         db.commit()
-    except Exception:
+    except Exception as e:
         db.rollback()
+        logging.exception("Failed to save to DB")
         raise
     finally:
         db.close()
